@@ -1,0 +1,13 @@
+{
+  "name": "laravel-worktree",
+  "description": "Create, inspect, and clean up isolated git worktrees for Laravel projects across Herd, DDEV, and Sail — full parallel environments (dedicated DB, .env, domain) with a single command.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Victor Stochero",
+    "email": "victor@stochero.dev"
+  },
+  "homepage": "https://github.com/VictorStochero/laravel-worktree",
+  "repository": "https://github.com/VictorStochero/laravel-worktree",
+  "license": "MIT",
+  "keywords": ["laravel", "worktree", "git", "herd", "ddev", "sail", "claude-code"]
+}
