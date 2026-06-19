@@ -31,14 +31,14 @@ Spinning up a throwaway environment for a second branch is fiddly: you clone or 
 
 ### As a plugin (recommended)
 
-In Claude Code:
+In Claude Code, add the marketplace once and install:
 
 ```
-/plugin marketplace add VictorStochero/laravel-worktree
-/plugin install laravel-worktree@laravel-worktree
+/plugin marketplace add VictorStochero/claude-plugins
+/plugin install laravel-worktree@stochero
 ```
 
-This installs the `laravel-worktree` skill (auto-activates on relevant requests) and the three slash commands.
+This installs the `laravel-worktree` skill (auto-activates on relevant requests) and the three slash commands. The same marketplace also serves any future plugins.
 
 ### Manual
 
