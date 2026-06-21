@@ -1,11 +1,11 @@
 ---
 name: laravel-worktree
-description: Use when creating, inspecting, or cleaning up git worktrees for a Laravel project, across local runtimes — Laravel Herd, DDEV, or Sail. Detects the runtime and branches the setup accordingly (shell, domain, database, container lifecycle). Covers isolated parallel environments end-to-end — base-branch derivation, dedicated database + .env, multi-tenancy/Warden/test-env quirks, baseline tests, and safe cleanup. Triggers: "criar worktree", "branch isolada", "ambiente paralelo", "novo worktree", "listar/inspecionar worktrees", "limpar/remover worktree".
+description: Use when creating, inspecting, or cleaning up git worktrees for a Laravel project, across local runtimes — Laravel Herd, DDEV, or Sail. Detects the runtime and branches the setup accordingly (shell, domain, database, container lifecycle). Covers isolated parallel environments end-to-end — base-branch derivation, dedicated database + .env, multi-tenancy/Warden/test-env quirks, test-suite verification (fast — no full run), and safe cleanup. Triggers: "criar worktree", "branch isolada", "ambiente paralelo", "novo worktree", "listar/inspecionar worktrees", "limpar/remover worktree".
 ---
 
 # Laravel Worktree (multi-runtime)
 
-Cria e opera git worktrees isolados para projetos Laravel — um ambiente paralelo completo por branch, sem tocar no checkout original. O **runtime local** (Herd / DDEV / Sail) muda só os detalhes de shell, domínio, banco e ciclo de container; o esqueleto (git worktree, base branch, `.env`, baseline) é comum.
+Cria e opera git worktrees isolados para projetos Laravel — um ambiente paralelo completo por branch, sem tocar no checkout original. O **runtime local** (Herd / DDEV / Sail) muda só os detalhes de shell, domínio, banco e ciclo de container; o esqueleto (git worktree, base branch, `.env`, verificação da suíte) é comum. O foco é **provisionamento rápido**: subir o ambiente paralelo pronto para uso, sem rodar a suíte inteira.
 
 Três operações: **criar**, **inspecionar**, **limpar**.
 
@@ -65,10 +65,10 @@ Sempre via **Bash**: os comandos `git`.
 7. **`storage:link`** pelo shell do runtime.
 8. **Front-end:** se houver `package.json`, `npm install` (Herd) / `ddev npm install` / `sail npm install` (+ build se necessário).
 9. **Ambiente de teste:** se houver `.env.testing` versionado, alinhar o host de DB ao runtime ativo. Um `.env.testing` apontando para `db`/`mysql` (DDEV/Docker) **quebra no Herd** (`getaddrinfo for db failed`) e vice-versa. Se existir um exemplo do runtime (`.env.testing.example-herd`, `.env.testing.example-ddev`, etc.), sobrepor o correto como `.env.testing` e usar um banco de teste isolado (`{db}_wt_{contexto}_test` no Herd; o do container em DDEV/Sail); migrar com `migrate --env=testing`.
-10. **Baseline verde:** rodar a suíte (`... artisan test --compact`) antes de iniciar. Se já parte vermelha, reportar e perguntar — **não confundir regressão nova com falha pré-existente** (URL/host hardcoded, ou teste que depende da suíte inteira ter migrado o banco de teste).
+10. **Verificar a suíte (não rodar tudo):** confirmar que a suíte está saudável e descobrível — `... artisan test --list-tests` (ou `... artisan test --testsuite=Unit --stop-on-failure` se quiser um smoke rápido). Isso valida autoload, `.env.testing`, conexão de banco de teste e descoberta dos testes **sem** pagar o custo de rodar a suíte inteira no provisionamento. Se a listagem/smoke já falhar (fatal, host de DB errado, autoload quebrado), reportar e perguntar. Rodar a suíte completa fica a cargo do usuário, sob demanda — **não confundir regressão nova com falha pré-existente** (URL/host hardcoded, ou teste que depende da suíte inteira ter migrado o banco de teste).
 
 ### Reportar (criação)
-Pasta + **URL**; branch + base (`.worktree-base`); banco/projeto do runtime; status do baseline (verde / vermelho + causa).
+Pasta + **URL**; branch + base (`.worktree-base`); banco/projeto do runtime; verificação da suíte (descoberta OK / falha + causa). Lembrar que a suíte completa não foi rodada — fica a cargo do usuário.
 
 ---
 
@@ -103,5 +103,5 @@ PR sempre com alvo na base de `.worktree-base` (nunca `main` se a origem foi `de
 - Worktree dentro do repo ou aninhado.
 - Misturar shells/domínios de runtimes (ex.: `php artisan` no host num projeto DDEV; `.test` no Sail).
 - Clonar dados da origem em vez de `migrate --seed` limpo.
-- Declarar baseline verde sem rodar testes, ou tratar falha pré-existente como bloqueio.
+- Rodar a suíte inteira no provisionamento (lento) em vez de só verificar a descoberta da suíte; ou tratar falha pré-existente como bloqueio.
 - Dropar banco / `ddev delete` / `sail down -v` / `--force` sem confirmar mudanças não salvas.
